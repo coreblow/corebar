@@ -1,7 +1,11 @@
 node_modules/
 .build/
+.swiftpm/
+*.d
+*.dia
 .wrangler/
 .DS_Store
 dist/
 .env
 .env.*
+

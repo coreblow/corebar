@@ -1,49 +1,49 @@
 # CoreBar
 
-Menu bar control plane for local-first CoreBlow apps.
+Real-time macOS menu bar companion and gateway health monitor for CoreBlow.
 
 ## Overview
 
-CoreBar is part of the CoreBlow public repository family. Local desktop control plane for CoreBlow companion applications.
+CoreBar is part of the CoreBlow public repository family. It provides both a lightweight SwiftUI macOS menu bar app (`corebar`) and an async Swift library (`CoreBar`) for monitoring CoreBlow Gateway connectivity, latency, and service state.
 
 This repository follows the same ecosystem split that CoreBlow uses to keep release surfaces small, auditable, and independently governed.
 
 ## Repository Role
 
+- Status: Active
 - Phase: 4
 - Priority: desktop
 - Kind: control-plane
 - Family: CoreBlow public repository family
 - Branding: CoreBlow
 
-## Scope
+## Features
 
-- Menu bar and desktop interaction primitives.
-- Local-first app coordination patterns.
-- Swift package contracts for the control surface.
+- **macOS Menu Bar Companion**: SwiftUI `MenuBarExtra` status item displaying live Gateway state and latency using the CoreBlow brand palette (`#E95420` Core Orange, `#171C1F` Graphite).
+- **Gateway Health Client**: Async actor-based Swift client polling `http://127.0.0.1:18789/health` with sub-millisecond latency tracking and error classification (healthy, degraded, offline, timeout).
+- **Quick Actions**: One-click shortcuts to open the CoreBlow Cockpit UI, reconnect/poll gateway, copy diagnostic snapshots to the clipboard, and quit.
+- **Swift 6 Strict Concurrency**: Fully compliant with Swift 6 Sendable requirements and modern Observation framework.
 
-## Out of Scope
+## Usage & Development
 
-- Core gateway ownership.
-- Cloud-hosted management surfaces.
+### Build Executable & Library
 
-## Key Files
+```sh
+swift build
+```
 
-- `.gitignore`
-- `Package.swift`
-- `Sources/CoreBar/CoreBarStatus.swift`
-- `Tests/CoreBarTests/CoreBarStatusTests.swift`
-- `.github/CODEOWNERS`
-- `.github/dependabot.yml`
-- `.github/ISSUE_TEMPLATE/bug_report.yml`
-- `.github/ISSUE_TEMPLATE/config.yml`
+The compiled binary will be placed at `.build/debug/corebar`.
 
-## Development
-
-### Test
+### Run Test Suite
 
 ```sh
 swift test
+```
+
+### Run CoreBar Menu App
+
+```sh
+swift run corebar
 ```
 
 ## Release Policy
