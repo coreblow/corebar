@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    name: Build, Attest & Release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run test suite
+        run: swift test
+
+      - name: Build companion executable
+        run: swift build -c release
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          node -e '
+            const fs = require("fs");
+            const sbom = {
+              bomFormat: "CycloneDX",
+              specVersion: "1.5",
+              version: 1,
+              metadata: {
+                timestamp: new Date().toISOString(),
+                component: {
+                  name: "corebar",
+                  version: "${{ github.ref_name }}".replace(/^v/, ""),
+                  type: "application",
+                  description: "CoreBlow macOS Menu Bar Companion in Swift"
+                }
+              },
+              components: []
+            };
+            fs.writeFileSync("sbom.cdx.json", JSON.stringify(sbom, null, 2));
+          '
+
+      - name: Generate SHA256 Checksums
+        run: |
+          shasum -a 256 .build/release/corebar sbom.cdx.json > SHA256SUMS.txt
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@c074443f1a5fb4a4820409d77786ac42e1161725 # v2.2.3
+        with:
+          subject-path: |
+            .build/release/corebar
+            sbom.cdx.json
+            SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
+        with:
+          files: |
+            .build/release/corebar
+            sbom.cdx.json
+            SHA256SUMS.txt
+          generate_release_notes: true
